@@ -1,67 +1,45 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
 const PORT = 4000;
 
-// 🔒 Allowed domain
-// const ALLOWED_ORIGIN = "https://yournewsdomain.com";
+// Allow both www and non-www if needed
+const allowedOrigins = [
+  "https://eisamay.com",
+  "https://www.eisamay.com",
+  "https://eisamay-demo-account.madrid.quintype.io"
+];
 
-// Trust proxy (if behind nginx/cloudflare)
-app.set("trust proxy", true);
+app.use(express.json({ limit: "50kb" }));
 
-// Parse JSON
-app.use(express.json({ limit: "10kb" }));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow non-browser tools like curl
+      if (!origin) return callback(null, true);
 
-// Strict CORS
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin || origin === ALLOWED_ORIGIN) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     methods: ["POST"],
-//   })
-// );
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["POST"],
+    credentials: false
+  })
+);
 
-// Tracking endpoint
 app.post("/s5/api/track", (req, res) => {
-  const { url, headline, author, ts } = req.body;
-
-  if (!url) {
-    return res.status(400).json({ error: "Invalid payload" });
-  }
-
-  // Get real IP
-  const ip =
-    req.headers["x-forwarded-for"]?.split(",")[0] ||
-    req.socket.remoteAddress;
-
-  const userAgent = req.headers["user-agent"] || "";
-
-  // Basic bot filter
-  if (/bot|crawler|spider|crawling/i.test(userAgent)) {
-    return res.status(204).end();
-  }
-
-  console.log("New Hit:");
-  console.log({
-    url,
-    headline,
-    author,
-    ip,
-    userAgent,
-    time: new Date().toISOString()
-  });
-
-  // 🔥 Later replace this with Redis increment
+  try {
+    const data = JSON.parse(req.body);
+    console.log("Tracked:", data);
+  } catch (e) {}
 
   res.status(204).end();
 });
 
+
 app.listen(PORT, () => {
-  console.log(`Tracking server running on port ${PORT}`);
+  console.log("Server running on port " + PORT);
 });
