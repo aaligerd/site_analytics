@@ -11,7 +11,7 @@ const allowedOrigins = [
   "https://eisamay-demo-account.madrid.quintype.io"
 ];
 
-app.use(express.json({ limit: "50kb" }));
+app.use(express.text({ type: "*/*" }));
 
 app.use(
   cors({
