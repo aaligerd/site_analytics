@@ -42,9 +42,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.options("*", (req, res) => {
-  res.sendStatus(200);
-});
+
 
 
 app.post("/s5/api/track", (req, res) => {
