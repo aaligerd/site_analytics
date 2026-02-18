@@ -30,6 +30,23 @@ app.use(
   })
 );
 
+app.use(express.text({ type: "*/*" }));
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://eisamay-demo-account.madrid.quintype.io"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
+
+app.options("*", (req, res) => {
+  res.sendStatus(200);
+});
+
+
 app.post("/s5/api/track", (req, res) => {
   try {
     const data = JSON.parse(req.body);
